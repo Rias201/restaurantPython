@@ -1,7 +1,7 @@
 import random
 from tkinter import *
 
-imatges_taules = ["./img/taula1.png","./img/taula3.png","./img/taula3.png"]
+imatges_taules = ["./img/taula_1.png","./img/taula_2.png","./img/taula_3.png"]
 
 # Creació de la finestra principal
 main = Tk()
@@ -19,7 +19,8 @@ left_frame.pack(side=LEFT)
 
 # Elements del frame esquerra
 for i in range(0,25):
-    btn = Button(left_frame,text=str(i+1),bg="Tomato",fg="Black",font=("Impact", 16),image=random.choice(imatges_taules))
+    foto = PhotoImage(file=r"./img/taula_1.png")
+    btn = Button(left_frame,text=str(i+1),bg="Tomato",fg="Black",font=("Impact", 16),image=foto)
     btn.grid(row=i//5,column=i-5*(i//5),sticky=N+S+E+W)
 
 main.mainloop()
