@@ -15,3 +15,6 @@ Haremos uso de:
 - Tkinter (Librería de Python)
 - MySQL Database (Base de datos relacional)
 - Speech Recognition (Librería de Python)
+
+### Contribuidores
+Biel Clarà, Ivan Subirats
