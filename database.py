@@ -12,7 +12,7 @@ def connectdb():
 def disconnectdb(conn):
     conn.close()
 
-def afegir_comanda(conn,n_comanda,producte,quantitat):
+def afegir_comanda(n_comanda,producte,quantitat):
     conn = connectdb()
     cursor = conn.cursor()
     try:
@@ -27,7 +27,7 @@ def afegir_comanda(conn,n_comanda,producte,quantitat):
         cursor.close()
         disconnectdb(conn)
 
-def recollir_comanda(conn,n_comanda):
+def recollir_comanda(n_comanda):
     conn = connectdb()
     cursor = conn.cursor()
     cursor.execute("SELECT producte, quantitat FROM comandes WHERE id = %s", (n_comanda,))
@@ -36,7 +36,7 @@ def recollir_comanda(conn,n_comanda):
     disconnectdb(conn)
     return json
 
-def recollir_productes(conn,tipus):
+def recollir_productes(tipus):
     conn = connectdb()
     cursor = conn.cursor()
     cursor.execute("SELECT nom, preu, stock FROM productes WHERE tipus = %s", (tipus,))
