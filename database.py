@@ -27,10 +27,10 @@ def afegir_comanda(n_comanda,producte,quantitat):
         cursor.close()
         disconnectdb(conn)
 
-def recollir_comanda(n_comanda):
+def recollir_comanda(n_taula):
     conn = connectdb()
     cursor = conn.cursor()
-    cursor.execute("SELECT producte, quantitat FROM comandes WHERE id = %s", (n_comanda,))
+    cursor.execute("SELECT c.id, c.producte, c.quantitat, p.preu FROM comandes c, productes p WHERE c.id = (SELECT MAX(id) FROM registres WHERE id_taula = %s) AND p.nom = c.producte", (n_taula,))
     json = cursor.fetchall()
     cursor.close()
     disconnectdb(conn)
