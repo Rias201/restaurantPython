@@ -71,7 +71,7 @@ def generate_bg_image():
     return f
 
 def menu_plats(n_taula,tipus):
-    print(recollir_comanda(n_taula))
+    print(recollir_comanda(n_taula,tipus))
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
