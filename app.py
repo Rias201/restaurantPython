@@ -4,12 +4,10 @@ from tkinter import messagebox as msgbox
 from database import *
 from PIL import Image, ImageTk
 
-# Color bisque
-BG_DEFAULT_COLOR = '#ffe4c4'
-# Color dark cream
-TABLE_DEFAULT_BG_COLOR = '#fff39a'
-# Color verd maragda
-TABLE_OCUPPIED_BG_COLOR = '#287233'
+BG_DEFAULT_COLOR = '#FFE4C4'
+TABLE_DEFAULT_BG_COLOR = '#38618C'
+TABLE_OCUPPIED_BG_COLOR = '#FF5964'
+BTN_BG_COLOR = '#35A7FF'
 
 def clear_check():
     # Habilitem el textarea
@@ -66,11 +64,11 @@ def fer_check(n_taula, finestra):
     else:
         msgbox.showerror("Error BD", "No hi ha ninguna comanda registrada")
 
-def generate_bg_image():
+def generate_bg_image(image,width,height):
     # Agafem una imatge aleatoria del nostre lllistat
-    foto = Image.open(random.choice(imatges_taules))
+    foto = Image.open(image)
     # Marquem la mida de l'imatge
-    foto = foto.resize((100,100))
+    foto = foto.resize((width,height))
     f = ImageTk.PhotoImage(foto)
     return f
 
@@ -117,7 +115,7 @@ def menu_plats(n_taula,tipus):
             Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page)).grid(row=8,column=3, padx=20,pady=5)
                   
         return page
-    # funcions canviar pàgina
+    # Funcions canviar pàgina
     def canviar_pag_seg(pag):
         global page
         clear_window()
@@ -127,15 +125,15 @@ def menu_plats(n_taula,tipus):
         global page
         clear_window()
         page = crea_pag(pag-1)
-
     
     llista_productes= list()
     llista_int_vars = list()
     llista_product_completa = recollir_productes(tipus)
     llista_comanda = recollir_comanda(n_taula)
-
+    
+    # Finestra mneú aliments
     menu_aliments = Toplevel()
-
+    # Configuració menú aliments
     menu_aliments.title(f"{tipus}")
     menu_aliments.resizable(0,0)
 
@@ -143,10 +141,7 @@ def menu_plats(n_taula,tipus):
         llista_productes.append(llista_product_completa[i][0])
         llista_int_vars.append(IntVar(value=0))
      
-
     page = crea_pag(1)
-
-
 
     menu_aliments.mainloop()
 
@@ -155,32 +150,41 @@ def menu_taula(taula):
     window = Toplevel()
     # Configuració finestra de menú
     window.title("Menú taules")
-    window.resizable(0,0)
+    window.config(bg=BG_DEFAULT_COLOR)
     window.attributes('-fullscreen',True)
-    window.protocol("WM_DELETE_WINDOW", disable_event)
 
-    n_rows = 4
+    window.grid_rowconfigure(0,weight=1)
+    window.grid_rowconfigure(1,weight=10)
+    window.grid_columnconfigure(0,weight=1)
+    
+    # Elements de la finestra principal
+    Label(window,text=f"Menú taula {taula}",font=("Gabriola",40),bg=BG_DEFAULT_COLOR).grid(row=0)
+    main_frame = Frame(window,bg=BG_DEFAULT_COLOR)
+
+    # Col·locació elements finestra principal
+    main_frame.grid(row=1,sticky="nsew")
+    
+    # Responsive main_frame
+    n_rows = 3
     n_cols = 3
     for i in range(0,n_rows):
-        window.grid_rowconfigure(i, weight=1)
+        main_frame.grid_rowconfigure(i, weight=1)
     for i in range(0,n_cols):
-        window.grid_columnconfigure(i, weight=1)
-    
-    # Capçalera de la finestra
-    Label(window,text=f"Menú taula {taula}",font=("Gabriola",40)).grid(row=0,column=1)
-    # Botons del menú
+        main_frame.grid_columnconfigure(i, weight=1)
+        
+    # Elements main_frame
     ## Primera filera
-    Button(window,text="Entrants",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"entrant")).grid(row=1,column=0,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Primer Plat",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"1r plat")).grid(row=1,column=1,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Segon Plat",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"2n plat")).grid(row=1,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Entrants",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"entrant")).grid(row=0,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Primer Plat",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"1r plat")).grid(row=0,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Segon Plat",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"2n plat")).grid(row=0,column=2,padx=20,pady=20,sticky="nsew")
     ## Segona filera
-    Button(window,text="Acompanyaments",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"acompanyaments")).grid(row=2,column=0,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Begudes",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"beguda")).grid(row=2,column=1,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Postres",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"postre")).grid(row=2,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Acompanyaments",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"acompanyaments")).grid(row=1,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Begudes",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"beguda")).grid(row=1,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Postres",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"postre")).grid(row=1,column=2,padx=20,pady=20,sticky="nsew")
     ## Tercera filera
-    Button(window,text="Cafè i petit fours",font=("Gabriola",20),bg="Aquamarine",width=15,command=lambda:crear_taula_aliments(taula,"cafè i petit fours")).grid(row=3,column=0,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Fer el check",font=("Gabriola",20),bg="Chartreuse",width=15,command=lambda:fer_check(taula, window)).grid(row=3,column=1,padx=20,pady=20,sticky="nsew")
-    Button(window,text="Sortir de la taula",font=("Gabriola",20),bg="coral",width=15,command=lambda:tancar_finestra(taula, window)).grid(row=3,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Cafè i petit fours",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"cafè i petit fours")).grid(row=2,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Fer el check",font=("Gabriola",20),bg="Chartreuse",width=15,command=lambda:fer_check(taula, window)).grid(row=2,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Sortir de la taula",font=("Gabriola",20),bg="coral",width=15,command=lambda:tancar_finestra(taula, window)).grid(row=2,column=2,padx=20,pady=20,sticky="nsew")
 
     window.mainloop()
 
@@ -220,9 +224,9 @@ main.config(bg=BG_DEFAULT_COLOR)
 
 # Fer responsive finestra principal
 main.grid_rowconfigure(0,weight=1)
-main.grid_rowconfigure(1,weight=3,uniform=1)
-# main.grid_rowconfigure(2,weight=1)
-main.grid_columnconfigure((0,1),weight=1)
+main.grid_rowconfigure(1,weight=3)
+main.grid_columnconfigure(0,weight=2)
+main.grid_columnconfigure(1,weight=1)
 
 # Elements de la finestra principal
 title_lbl = Label(main,text="La Cuina dels Sentits",font=("Gabriola",25),bg=BG_DEFAULT_COLOR)
@@ -244,23 +248,25 @@ for i in range(n_rows):
 
 # Elements del frame esquerre
 for i in range(0,25):
-    foto = generate_bg_image()
+    foto = generate_bg_image(random.choice(imatges_taules),100,100)
     btn = Button(left_frame,text=str(i+1),bg=TABLE_DEFAULT_BG_COLOR,fg="White",font=("Impact",18),image=foto,compound=CENTER,command=lambda i=i+1:menu_taula(i))
     btn.image = foto
     taules_ocupades[btn] = 0
     btn.grid(row=i//5,column=i-5*(i//5),sticky="nsew")
 
 # Fer responsive frame dret
-right_frame.grid_rowconfigure((0,1),weight=1)
+right_frame.grid_rowconfigure((0,1,2),weight=1)
 right_frame.grid_columnconfigure(0,weight=1)
 
 # Elements del frame dret
 check_txt = Text(right_frame,font=("Courier New",12),state="disabled",width=50,height=30)
-clear_btn = Button(right_frame,text="C",font=("Impact",18),command=clear_check,bg="HotPink")
+clear_btn = Button(right_frame,text="C",font=("Impact",18),bg=BTN_BG_COLOR,command=clear_check)
+quit_btn = Button(right_frame,text="X",font=("Impact",18),bg="red",command=main.destroy)
 
 # Col·locació dels elements del frame dret
 check_txt.grid(row=0,column=0,columnspan=2,sticky=NS)
-clear_btn.grid(row=1,column=0,columnspan=2,sticky="nsew")
+clear_btn.grid(row=1,column=0,sticky="nsew")
+quit_btn.grid(row=2,column=1,sticky="nsew")
 
 # it will call resize function 
 # when window size will change

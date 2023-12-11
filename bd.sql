@@ -101,5 +101,5 @@ INSERT INTO `registres` (`id`, `id_taula`, `data`) VALUES
 	(NULL, 1, '2023-11-28'),
 	(NULL, 14, '2023-11-30');
 
-ALTER TABLE CONSTRAINT `FK_comanda_productes` FOREIGN KEY (`producte`) REFERENCES `productes` (`nom`) ON UPDATE CASCADE;
-ALTER TABLE CONSTRAINT `FK_comandes_registres` FOREIGN KEY (`id`) REFERENCES `registres` (`id`) ON DELETE CASCADE;
+ALTER TABLE `comandes` ADD CONSTRAINT `FK_comanda_productes` FOREIGN KEY (`producte`) REFERENCES `productes` (`nom`) ON UPDATE CASCADE;
+ALTER TABLE `comandes` ADD CONSTRAINT `FK_comandes_registres` FOREIGN KEY (`id`) REFERENCES `registres` (`id`) ON DELETE CASCADE;
