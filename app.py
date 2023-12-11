@@ -90,32 +90,37 @@ def menu_plats(n_taula,tipus):
 
     def crea_pag(page):
         # Pag title
-        Label(menu_aliments, text=f"{tipus.capitalize()}", font=("Impact",30)).grid(row=0,column=0)
+        Label(menu_aliments, text=f"{tipus.capitalize()}", font=("Impact",30)).grid(row=0,column=1)
         try:
             # Col·locació elements a la pàgina
             for i in range(7*page-7, 7*page):
+                # imatge
+                foto = generate_bg_image(llista_product_completa[i][3],75,75)
+                lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),image=foto)
+                lbl.image = foto
+                lbl.grid(row=(i+1)-(7*(page-1)), column=0, padx=20, pady=5)
                 # Nom del producte
-                Label(menu_aliments, text=llista_productes[i].capitalize(), font=("Gabriola",20), width=52).grid(row=(i+1)-(7*(page-1)), column=0, padx=20, pady=5)
+                Label(menu_aliments,compound=LEFT, text=llista_productes[i].capitalize(), font=("Gabriola",20)).grid(row=(i+1)-(7*(page-1)), column=1, padx=20, pady=5)
                 # Suma, resta d'stock
-                Button(menu_aliments, text="➕",font=("Gabriola",10),width=4, command=lambda plat=i : sumar(plat)).grid(row=(i+1)-(7*(page-1)), column=3, padx=20,pady=10)
-                Button(menu_aliments, text="➖",font=("Gabriola",10),width=4, command=lambda plat=i : restar(plat)).grid(row=(i+1)-(7*(page-1)), column=1, padx=20,pady=10)
+                Button(menu_aliments, text="➕",font=("Gabriola",10),width=4, command=lambda plat=i : sumar(plat)).grid(row=(i+1)-(7*(page-1)), column=4, padx=20,pady=10)
+                Button(menu_aliments, text="➖",font=("Gabriola",10),width=4, command=lambda plat=i : restar(plat)).grid(row=(i+1)-(7*(page-1)), column=2, padx=20,pady=10)
                 # Entry d'stock
-                Entry(menu_aliments, font=("Kameron", 20), width=3, justify=CENTER, textvariable=llista_int_vars[i]).grid(row=(i+1)-(7*(page-1)), column=2)
+                Entry(menu_aliments, font=("Kameron", 20), width=3, justify=CENTER, textvariable=llista_int_vars[i]).grid(row=(i+1)-(7*(page-1)), column=3)
         except IndexError:
             pass   
         # canviar de pagina amb limitadors
         if page == 1:
-            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE).grid(row=8,column=1, padx=20,pady=5)
+            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE).grid(row=8,column=2, padx=20,pady=5)
         else:
-             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page)).grid(row=8,column=1, padx=20,pady=5)
+             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page)).grid(row=8,column=2, padx=20,pady=5)
 
         if len(llista_productes) <= page*7:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE).grid(row=8,column=3, padx=20,pady=5)
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE).grid(row=8,column=4, padx=20,pady=5)
         else:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page)).grid(row=8,column=3, padx=20,pady=5)
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page)).grid(row=8,column=4, padx=20,pady=5)
                   
         return page
-    # Funcions canviar pàgina
+    # funcions canviar pàgina
     def canviar_pag_seg(pag):
         global page
         clear_window()
@@ -125,25 +130,35 @@ def menu_plats(n_taula,tipus):
         global page
         clear_window()
         page = crea_pag(pag-1)
+
     
     llista_productes= list()
     llista_int_vars = list()
     llista_product_completa = recollir_productes(tipus)
     llista_comanda = recollir_comanda(n_taula,tipus)
     
-    # Finestra mneú aliments
+
+
     menu_aliments = Toplevel()
-    # Configuració menú aliments
+
     menu_aliments.title(f"{tipus}")
-    menu_aliments.resizable(0,0)
+    # menu_aliments.resizable(0,0)
+    # menu_aliments.attributes("-fullscreen", True)
+    menu_aliments.grid_rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
+    menu_aliments.grid_columnconfigure((0,1,2,3,4,5),weight=1)
+
 
     for i in range (len(llista_product_completa)):
         llista_productes.append(llista_product_completa[i][0])
         llista_int_vars.append(IntVar(value=0))
      
+
     page = crea_pag(1)
 
+
+    menu_aliments.bind('<Configure>', resize)
     menu_aliments.mainloop()
+
 
 def menu_taula(taula):
     # Creació de la finestra de menú
