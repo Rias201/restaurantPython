@@ -129,7 +129,7 @@ def menu_plats(n_taula,tipus):
     llista_productes= list()
     llista_int_vars = list()
     llista_product_completa = recollir_productes(tipus)
-    llista_comanda = recollir_comanda(n_taula)
+    llista_comanda = recollir_comanda(n_taula,tipus)
     
     # Finestra mneú aliments
     menu_aliments = Toplevel()
@@ -204,7 +204,7 @@ def resize(e):
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(btn_font_size)
 
 def tancar_finestra(n_taula, finestra):
-    if len(recollir_comanda(n_taula)) != 0:
+    if len(recollir_comanda(n_taula,'*')) != 0:
         list(taules_ocupades)[n_taula-1].config(bg=TABLE_OCUPPIED_BG_COLOR)
         taules_ocupades[list(taules_ocupades)[n_taula-1]] = 1
     finestra.destroy()
