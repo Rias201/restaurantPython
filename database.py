@@ -39,7 +39,7 @@ def recollir_comanda(n_taula,tipus):
 def recollir_productes(tipus):
     conn = connectdb()
     cursor = conn.cursor()
-    cursor.execute("SELECT nom, preu, stock FROM productes WHERE tipus = %s", (tipus,))
+    cursor.execute("SELECT nom, preu, stock, imatge FROM productes WHERE tipus = %s", (tipus,))
     llista_productes = cursor.fetchall()
     cursor.close()
     disconnectdb(conn)
