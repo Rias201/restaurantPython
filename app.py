@@ -83,7 +83,7 @@ def generate_bg_image(image,width,height):
 
 def menu_plats(n_taula,tipus):
     llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
-        
+    dict_comanda = {}
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
@@ -104,7 +104,9 @@ def menu_plats(n_taula,tipus):
             if i == tipus:
                 menu_plats(n_taula, llista_plats[cont+1])
             cont+=1
-                
+    
+    def guardar_comanda():
+        pass
     
     def restar(index):
         if llista_int_vars[(index)-(7*(page-1))].get() > 0: 
