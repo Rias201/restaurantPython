@@ -10,6 +10,9 @@ LIGHT_RED_BG_COLOR = '#FF5964'
 BLUE_BG_COLOR = '#35A7FF'
 RED_BG_COLOR = '#E3170A'
 GRN_BG_COLOR = '#20BF55'
+BTN_ACTIVE_BG_COLOR = '#70C1FF'
+BTN_DISABLED_GRN_COLOR = '#62E48D'
+BTN_DISABLED_RED_COLOR = '#F85A4F'
 
 def cancelar_comanda(n_taula, window):
     if delete_comanda(n_taula):
@@ -79,10 +82,30 @@ def generate_bg_image(image,width,height):
     return f
 
 def menu_plats(n_taula,tipus):
+    llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
+    print(recollir_comanda(n_taula))
+    
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
             widget.destroy()
+    
+    def enrere():
+        menu_aliments.destroy()
+        cont = 0
+        for i in llista_plats:
+            if i == tipus:
+                menu_plats(n_taula, llista_plats[cont-1])
+            cont+=1
+
+    def endavant():
+        menu_aliments.destroy()
+        cont = 0
+        for i in llista_plats:
+            if i == tipus:
+                menu_plats(n_taula, llista_plats[cont+1])
+            cont+=1
+                
     
     def restar(index):
         if llista_int_vars[(index)-(7*(page-1))].get() > 0: 
@@ -95,45 +118,64 @@ def menu_plats(n_taula,tipus):
 
     def crea_pag(page):
         # Pag title
-        Label(menu_aliments,text=f"{tipus.capitalize()}",font=("Impact",30),bg=CHAMPAGNE_BG_COLOR).grid(row=0,column=1)
+        Label(menu_aliments, text=f"{tipus.capitalize()}", font=("Impact", 40),bg=CHAMPAGNE_BG_COLOR).grid(row=0,column=0, columnspan=5, ipady=30)
         try:
             # Col·locació elements a la pàgina
             for i in range(7*page-7, 7*page):
                 # imatge
                 foto = generate_bg_image(llista_product_completa[i][3],75,75)
-                lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),bg=CHAMPAGNE_BG_COLOR,image=foto)
+                lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),image=foto,bg="#722F37")
                 lbl.image = foto
-                lbl.grid(row=(i+1)-(7*(page-1)), column=0, padx=20, pady=5)
+                lbl.grid(row=(i+1)-(7*(page-1)), column=1, padx=20, pady=5)
                 # Nom del producte
-                Label(menu_aliments,compound=LEFT, text=llista_productes[i].capitalize(), font=("Gabriola",20),bg=CHAMPAGNE_BG_COLOR).grid(row=(i+1)-(7*(page-1)), column=1, padx=20, pady=5)
+                Label(menu_aliments,compound=LEFT, text=llista_productes[i].capitalize(), font=("Gabriola",20),bg=CHAMPAGNE_BG_COLOR).grid(row=(i+1)-(7*(page-1)), column=2, padx=20, pady=5)
                 # Suma, resta d'stock
-                Button(menu_aliments, text="➕",font=("Gabriola",10),width=4, command=lambda plat=i : sumar(plat)).grid(row=(i+1)-(7*(page-1)), column=4, padx=20,pady=10)
-                Button(menu_aliments, text="➖",font=("Gabriola",10),width=4, command=lambda plat=i : restar(plat)).grid(row=(i+1)-(7*(page-1)), column=2, padx=20,pady=10)
+                Button(menu_aliments, text="➕",font=("Gabriola",10),bg=BLUE_BG_COLOR,activebackground=BTN_ACTIVE_BG_COLOR,width=4, command=lambda plat=i : sumar(plat)).grid(row=(i+1)-(7*(page-1)), column=5, padx=20,pady=10)
+                Button(menu_aliments, text="➖",font=("Gabriola",10),bg=BLUE_BG_COLOR,activebackground=BTN_ACTIVE_BG_COLOR,width=4, command=lambda plat=i : restar(plat)).grid(row=(i+1)-(7*(page-1)), column=3, padx=20,pady=10)
                 # Entry d'stock
-                Entry(menu_aliments, font=("Kameron", 20), width=3, justify=CENTER, textvariable=llista_int_vars[i]).grid(row=(i+1)-(7*(page-1)), column=3)
+                Entry(menu_aliments, font=("Kameron", 20), width=3, justify=CENTER, textvariable=llista_int_vars[i]).grid(row=(i+1)-(7*(page-1)), column=4)
         except IndexError:
             pass   
         # canviar de pagina amb limitadors
         if page == 1:
-            Button(menu_aliments,text="<",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE).grid(row=8,column=2, padx=20,pady=5)
+            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE,bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=3, padx=20,pady=5)
         else:
-             Button(menu_aliments,text="<",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_ant(page)).grid(row=8,column=2, padx=20,pady=5)
+             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), bg=GRN_BG_COLOR,activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=3, padx=20,pady=5)
 
         if len(llista_productes) <= page*7:
-            Button(menu_aliments,text=">",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE).grid(row=8,column=4, padx=20,pady=5)
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE, bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5, padx=20,pady=5)
         else:
-            Button(menu_aliments,text=">",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_seg(page)).grid(row=8,column=4, padx=20,pady=5)
-                  
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), bg=GRN_BG_COLOR, activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5, padx=20,pady=5)
+
+        # Botó enrere
+        Button(menu_aliments,text="Enrere",font=("Gabriola",10),width=7, bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=menu_aliments.destroy).grid(row=8,column=4)  
+        # Botó guardar comanda
+        Button(menu_aliments,text="Guardar comanda",font=("Gabriola",10),width=30, bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=menu_aliments.destroy).grid(row=8,column=2)
+        # Botó enrere menu
+        if tipus!="entrant":
+            Button(menu_aliments,text="<-",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10).grid(row=0,column=0,rowspan=10)
+        else:
+            Button(menu_aliments,text="<-",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10, relief=RIDGE, state=DISABLED).grid(row=0,column=0,rowspan=10)
+        # Botó següent menu
+        if tipus != "cafè i petit fours":
+            Button(menu_aliments,text="->",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=endavant,height=10).grid(row=0,column=6,rowspan=10)
+        else:
+            Button(menu_aliments,text="->",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10, relief=RIDGE, state=DISABLED).grid(row=0,column=6,rowspan=10)
+
+        resize(None,menu_aliments)
         return page
     # funcions canviar pàgina
     def canviar_pag_seg(pag):
         global page
         clear_window()
+        
         page = crea_pag(pag+1)
+        
 
     def canviar_pag_ant(pag):
         global page
         clear_window()
+        
         page = crea_pag(pag-1)
 
     # Inicialització de variables per a la finestra
@@ -220,20 +262,34 @@ def menu_taula(n_taula):
 
     window.mainloop()
 
-# Function on window resize
-def resize(e):
-    # print(e.widget)
-    # get window width 
-    lbl_font_size = e.width//40
-    btn_font_size = e.width//60
+# resize button text size
+def resize(e=None,window=None):
+    if e != None:
+        # print(e.widget.master.winfo_class())
+        # get window width 
+        lbl_font_size = e.width//40
+        btn_font_size = e.width//60
+        inp_font_size = e.width//45
+        window = e.widget
+    else:
+        lbl_font_size = window.winfo_screenwidth()//40
+        btn_font_size = window.winfo_screenwidth()//60
+        inp_font_size = window.winfo_screenwidth()//45
 
     # define text size on different condition
-    for widget in e.widget.winfo_children():
+    for widget in window.winfo_children():
         if widget.master.winfo_class() == 'Tk':
             if widget.winfo_class() == 'Label':
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(lbl_font_size)
             elif widget.winfo_class() == 'Button':
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(btn_font_size)
+        elif widget.master.winfo_class() == 'Toplevel':
+            if widget.winfo_class() == 'Label':
+                widget['font'] = widget['font'].split(' ')[0] + ' ' + str(lbl_font_size)
+            elif widget.winfo_class() == 'Button':
+                widget['font'] = widget['font'].split(' ')[0] + ' ' + str(btn_font_size)
+            elif widget.winfo_class() == 'Entry':
+                widget['font'] = widget['font'].split(' ')[0] + ' ' + str(inp_font_size)
 
 # Comença programa
 # Inicialització de variables
