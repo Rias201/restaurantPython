@@ -4,10 +4,20 @@ from tkinter import messagebox as msgbox
 from database import *
 from PIL import Image, ImageTk
 
-BG_DEFAULT_COLOR = '#FFE4C4'
-TABLE_DEFAULT_BG_COLOR = '#38618C'
-TABLE_OCUPPIED_BG_COLOR = '#FF5964'
-BTN_BG_COLOR = '#35A7FF'
+CHAMPAGNE_BG_COLOR = '#FFE4C4'
+DARK_BLUE_BG_COLOR = '#38618C'
+LIGHT_RED_BG_COLOR = '#FF5964'
+BLUE_BG_COLOR = '#35A7FF'
+RED_BG_COLOR = '#E3170A'
+GRN_BG_COLOR = '#20BF55'
+
+def cancelar_comanda(n_taula, window):
+    if delete_comanda(n_taula):
+        list(taules_ocupades)[n_taula-1].config(bg=DARK_BLUE_BG_COLOR)
+        taules_ocupades[list(taules_ocupades)[n_taula-1]] = 0
+        window.destroy()
+    else:
+        msgbox.showerror("BD Error", "No s'ha pogut esborrar la comanda.")
 
 def clear_check():
     # Habilitem el textarea
@@ -20,13 +30,9 @@ def clear_check():
 def crear_taula_aliments(n_taula,plat):
     menu_plats(n_taula,plat)
 
-# Evita que es pugui tancar la finestra amb la X
-def disable_event():
-    pass
-
-def fer_check(n_taula, finestra):
+def fer_check(n_taula, window):
     # Recollim la comanda
-    productes = recollir_comanda(n_taula)
+    productes = recollir_comanda(n_taula,'*')
     if len(productes) != 0:
         # Fem el check
         subtotal = 0.0
@@ -58,11 +64,11 @@ def fer_check(n_taula, finestra):
         check_txt.insert(END, check)
         # Habilitem READ-ONLY al check
         check_txt.config(state="disabled")
-        list(taules_ocupades)[n_taula-1].config(bg=TABLE_DEFAULT_BG_COLOR)
+        list(taules_ocupades)[n_taula-1].config(bg=DARK_BLUE_BG_COLOR)
         taules_ocupades[list(taules_ocupades)[n_taula-1]] = 0
-        finestra.destroy()
+        window.destroy()
     else:
-        msgbox.showerror("Error BD", "No hi ha ninguna comanda registrada")
+        msgbox.showinfo("Comanda no registrada", "No es pot fer check d'una comanda que no ha sigut registrada.")
 
 def generate_bg_image(image,width,height):
     # Agafem una imatge aleatoria del nostre lllistat
@@ -73,7 +79,6 @@ def generate_bg_image(image,width,height):
     return f
 
 def menu_plats(n_taula,tipus):
-    print(recollir_comanda(n_taula,tipus))
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
@@ -90,17 +95,17 @@ def menu_plats(n_taula,tipus):
 
     def crea_pag(page):
         # Pag title
-        Label(menu_aliments, text=f"{tipus.capitalize()}", font=("Impact",30)).grid(row=0,column=1)
+        Label(menu_aliments,text=f"{tipus.capitalize()}",font=("Impact",30),bg=CHAMPAGNE_BG_COLOR).grid(row=0,column=1)
         try:
             # Col·locació elements a la pàgina
             for i in range(7*page-7, 7*page):
                 # imatge
                 foto = generate_bg_image(llista_product_completa[i][3],75,75)
-                lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),image=foto)
+                lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),bg=CHAMPAGNE_BG_COLOR,image=foto)
                 lbl.image = foto
                 lbl.grid(row=(i+1)-(7*(page-1)), column=0, padx=20, pady=5)
                 # Nom del producte
-                Label(menu_aliments,compound=LEFT, text=llista_productes[i].capitalize(), font=("Gabriola",20)).grid(row=(i+1)-(7*(page-1)), column=1, padx=20, pady=5)
+                Label(menu_aliments,compound=LEFT, text=llista_productes[i].capitalize(), font=("Gabriola",20),bg=CHAMPAGNE_BG_COLOR).grid(row=(i+1)-(7*(page-1)), column=1, padx=20, pady=5)
                 # Suma, resta d'stock
                 Button(menu_aliments, text="➕",font=("Gabriola",10),width=4, command=lambda plat=i : sumar(plat)).grid(row=(i+1)-(7*(page-1)), column=4, padx=20,pady=10)
                 Button(menu_aliments, text="➖",font=("Gabriola",10),width=4, command=lambda plat=i : restar(plat)).grid(row=(i+1)-(7*(page-1)), column=2, padx=20,pady=10)
@@ -110,14 +115,14 @@ def menu_plats(n_taula,tipus):
             pass   
         # canviar de pagina amb limitadors
         if page == 1:
-            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE).grid(row=8,column=2, padx=20,pady=5)
+            Button(menu_aliments,text="<",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE).grid(row=8,column=2, padx=20,pady=5)
         else:
-             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page)).grid(row=8,column=2, padx=20,pady=5)
+             Button(menu_aliments,text="<",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_ant(page)).grid(row=8,column=2, padx=20,pady=5)
 
         if len(llista_productes) <= page*7:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE).grid(row=8,column=4, padx=20,pady=5)
+            Button(menu_aliments,text=">",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE).grid(row=8,column=4, padx=20,pady=5)
         else:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page)).grid(row=8,column=4, padx=20,pady=5)
+            Button(menu_aliments,text=">",font=("Gabriola",10),bg=BLUE_BG_COLOR,width=4,command=lambda:canviar_pag_seg(page)).grid(row=8,column=4, padx=20,pady=5)
                   
         return page
     # funcions canviar pàgina
@@ -131,41 +136,51 @@ def menu_plats(n_taula,tipus):
         clear_window()
         page = crea_pag(pag-1)
 
-    
+    # Inicialització de variables per a la finestra
     llista_productes= list()
     llista_int_vars = list()
     llista_product_completa = recollir_productes(tipus)
     llista_comanda = recollir_comanda(n_taula,tipus)
     
-
-
+    # Creació finestra menú aliments
     menu_aliments = Toplevel()
-
+    # Configuració finestra menu aliments
     menu_aliments.title(f"{tipus}")
-    # menu_aliments.resizable(0,0)
-    # menu_aliments.attributes("-fullscreen", True)
+    menu_aliments.config(bg=CHAMPAGNE_BG_COLOR)
+    menu_aliments.attributes("-fullscreen", True)
     menu_aliments.grid_rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
     menu_aliments.grid_columnconfigure((0,1,2,3,4,5),weight=1)
-
 
     for i in range (len(llista_product_completa)):
         llista_productes.append(llista_product_completa[i][0])
         llista_int_vars.append(IntVar(value=0))
-     
+    
+    # Agafa els valors inicials de la comanda
+    for i in range(len(llista_comanda)):
+        if llista_comanda[i][1] in llista_productes:
+            index = llista_productes.index(llista_comanda[i][1])
+            llista_int_vars[index].set(llista_comanda[i][2])
 
+    # Crea la pàgina de productes
     page = crea_pag(1)
-
 
     menu_aliments.bind('<Configure>', resize)
     menu_aliments.mainloop()
 
+def menu_taula(n_taula):
+    if taules_ocupades[list(taules_ocupades)[n_taula-1]] == 0:
+        if create_comanda(n_taula):
+            list(taules_ocupades)[n_taula-1].config(bg=LIGHT_RED_BG_COLOR)
+            taules_ocupades[list(taules_ocupades)[n_taula-1]] = 1
+        else:
+            msgbox.showerror("BD Error", "No s'ha pogut crear la comanda.")
+        
 
-def menu_taula(taula):
     # Creació de la finestra de menú
     window = Toplevel()
     # Configuració finestra de menú
     window.title("Menú taules")
-    window.config(bg=BG_DEFAULT_COLOR)
+    window.config(bg=CHAMPAGNE_BG_COLOR)
     window.attributes('-fullscreen',True)
 
     window.grid_rowconfigure(0,weight=1)
@@ -173,14 +188,14 @@ def menu_taula(taula):
     window.grid_columnconfigure(0,weight=1)
     
     # Elements de la finestra principal
-    Label(window,text=f"Menú taula {taula}",font=("Gabriola",40),bg=BG_DEFAULT_COLOR).grid(row=0)
-    main_frame = Frame(window,bg=BG_DEFAULT_COLOR)
+    Label(window,text=f"Menú taula {n_taula}",font=("Gabriola",40),bg=CHAMPAGNE_BG_COLOR).grid(row=0)
+    main_frame = Frame(window,bg=CHAMPAGNE_BG_COLOR)
 
     # Col·locació elements finestra principal
     main_frame.grid(row=1,sticky="nsew")
     
     # Responsive main_frame
-    n_rows = 3
+    n_rows = 4
     n_cols = 3
     for i in range(0,n_rows):
         main_frame.grid_rowconfigure(i, weight=1)
@@ -189,21 +204,23 @@ def menu_taula(taula):
         
     # Elements main_frame
     ## Primera filera
-    Button(main_frame,text="Entrants",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"entrant")).grid(row=0,column=0,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Primer Plat",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"1r plat")).grid(row=0,column=1,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Segon Plat",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"2n plat")).grid(row=0,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Entrants",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"entrant")).grid(row=0,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Primer Plat",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"1r plat")).grid(row=0,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Segon Plat",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"2n plat")).grid(row=0,column=2,padx=20,pady=20,sticky="nsew")
     ## Segona filera
-    Button(main_frame,text="Acompanyaments",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"acompanyaments")).grid(row=1,column=0,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Begudes",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"beguda")).grid(row=1,column=1,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Postres",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"postre")).grid(row=1,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Acompanyaments",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"acompanyaments")).grid(row=1,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Begudes",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"beguda")).grid(row=1,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Postres",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"postre")).grid(row=1,column=2,padx=20,pady=20,sticky="nsew")
     ## Tercera filera
-    Button(main_frame,text="Cafè i petit fours",font=("Gabriola",20),bg=BTN_BG_COLOR,width=15,command=lambda:crear_taula_aliments(taula,"cafè i petit fours")).grid(row=2,column=0,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Fer el check",font=("Gabriola",20),bg="Chartreuse",width=15,command=lambda:fer_check(taula, window)).grid(row=2,column=1,padx=20,pady=20,sticky="nsew")
-    Button(main_frame,text="Sortir de la taula",font=("Gabriola",20),bg="coral",width=15,command=lambda:tancar_finestra(taula, window)).grid(row=2,column=2,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Fer el check",font=("Gabriola",20),bg=GRN_BG_COLOR,width=15,command=lambda:fer_check(n_taula, window)).grid(row=2,column=0,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Cafè i petit fours",font=("Gabriola",20),bg=BLUE_BG_COLOR,width=15,command=lambda:crear_taula_aliments(n_taula,"cafè i petit fours")).grid(row=2,column=1,padx=20,pady=20,sticky="nsew")
+    Button(main_frame,text="Cancelar comanda",font=("Gabriola",20),bg=RED_BG_COLOR,width=15,command=lambda:cancelar_comanda(n_taula, window)).grid(row=2,column=2,padx=20,pady=20,sticky="nsew")
+    ## Quarta filera
+    Button(main_frame,text="Enrere",font=("Gabriola",20),bg=LIGHT_RED_BG_COLOR,width=15,command=window.destroy).grid(row=3,column=1,padx=20,pady=20,sticky="nsew")
 
     window.mainloop()
 
-# resize button text size
+# Function on window resize
 def resize(e):
     # print(e.widget)
     # get window width 
@@ -218,12 +235,6 @@ def resize(e):
             elif widget.winfo_class() == 'Button':
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(btn_font_size)
 
-def tancar_finestra(n_taula, finestra):
-    if len(recollir_comanda(n_taula,'*')) != 0:
-        list(taules_ocupades)[n_taula-1].config(bg=TABLE_OCUPPIED_BG_COLOR)
-        taules_ocupades[list(taules_ocupades)[n_taula-1]] = 1
-    finestra.destroy()
-
 # Comença programa
 # Inicialització de variables
 imatges_taules = ["./img/taula_1.png","./img/taula_2.png","./img/taula_3.png"]
@@ -234,8 +245,7 @@ main = Tk()
 # Configuració finestra principal
 main.title("QwikOrder")
 main.attributes('-fullscreen',True)
-main.config(bg=BG_DEFAULT_COLOR)
-# main.resizable(0,0)
+main.config(bg=CHAMPAGNE_BG_COLOR)
 
 # Fer responsive finestra principal
 main.grid_rowconfigure(0,weight=1)
@@ -244,16 +254,15 @@ main.grid_columnconfigure(0,weight=2)
 main.grid_columnconfigure(1,weight=1)
 
 # Elements de la finestra principal
-title_lbl = Label(main,text="La Cuina dels Sentits",font=("Gabriola",25),bg=BG_DEFAULT_COLOR)
-left_frame = Frame(main,bg=BG_DEFAULT_COLOR)
-right_frame = Frame(main,bg=BG_DEFAULT_COLOR)
+title_lbl = Label(main,text="La Cuina dels Sentits",font=("Gabriola",25),bg=CHAMPAGNE_BG_COLOR)
+left_frame = Frame(main,bg=CHAMPAGNE_BG_COLOR)
+right_frame = Frame(main,bg=CHAMPAGNE_BG_COLOR)
 kill_btn = Button(main,text="Kill",font=('Monaco',20),bg="#ae2535",command=main.destroy)
 
 # Col·locació dels elements de la finestra principal
 title_lbl.grid(row=0,column=0,columnspan=2)
 left_frame.grid(row=1,column=0,sticky="nsew")
 right_frame.grid(row=1,column=1,sticky="nsew")
-# kill_btn.grid(row=2,column=0,columnspan=2,sticky="nsew")
 
 # Fer responsive frame esquerre
 n_rows, n_cols = 5, 5
@@ -264,7 +273,7 @@ for i in range(n_rows):
 # Elements del frame esquerre
 for i in range(0,25):
     foto = generate_bg_image(random.choice(imatges_taules),100,100)
-    btn = Button(left_frame,text=str(i+1),bg=TABLE_DEFAULT_BG_COLOR,fg="White",font=("Impact",18),image=foto,compound=CENTER,command=lambda i=i+1:menu_taula(i))
+    btn = Button(left_frame,text=str(i+1),bg=DARK_BLUE_BG_COLOR,fg="White",font=("Impact",18),image=foto,compound=CENTER,command=lambda i=i+1:menu_taula(i))
     btn.image = foto
     taules_ocupades[btn] = 0
     btn.grid(row=i//5,column=i-5*(i//5),sticky="nsew")
@@ -275,7 +284,7 @@ right_frame.grid_columnconfigure(0,weight=1)
 
 # Elements del frame dret
 check_txt = Text(right_frame,font=("Courier New",12),state="disabled",width=50,height=30)
-clear_btn = Button(right_frame,text="C",font=("Impact",18),bg=BTN_BG_COLOR,command=clear_check)
+clear_btn = Button(right_frame,text="C",font=("Impact",18),bg=BLUE_BG_COLOR,command=clear_check)
 quit_btn = Button(right_frame,text="X",font=("Impact",18),bg="red",command=main.destroy)
 
 # Col·locació dels elements del frame dret
@@ -287,52 +296,3 @@ quit_btn.grid(row=2,column=1,sticky="nsew")
 # when window size will change
 main.bind('<Configure>', resize)
 main.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# llista = ['cafè amb llet','gin tonic amb gerds i llimona','picapoll negre','tallat']
-
-# dicc = {
-# 'cafè amb llet':1,
-# 'gin tonic amb gerds i llimona':3,
-# 'picapoll negre':5,
-# 'tallat':1,
-# 'trufes de xocolata':2,
-# 'patates braves':4,
-# }
-
-# for i in len(list(dicc.keys())):
-#   if list(dicc.keys())[i] in llista:
-#     index = llista.index(list(dicc.keys())[i])
-#     "UPDATE comandes SET quantitat = %s WHERE producte = %s",(dicc[llista[index]],llista[index])
-#   else:
-#     n_comanda = "SELECT MAX(id) FROM registres WHERE id_taula = %s",(n_taula,)
-#     "INSERT INTO comandes VALUES (%s,%s,%s)",(n_comanda,dicc[llista[index]],llista[index])
