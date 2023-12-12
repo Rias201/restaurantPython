@@ -1,15 +1,7 @@
-DROP DATABASE IF EXISTS `restaurant`;
-CREATE DATABASE `restaurant` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
+CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 USE `restaurant`;
 
-CREATE TABLE `comandes` (
-  `id` int(11) NOT NULL,
-  `producte` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
-  `quantitat` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`,`producte`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `productes` (
+CREATE TABLE IF NOT EXISTS `productes` (
   `nom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
   `preu` float DEFAULT NULL,
   `tipus` enum('entrant','1r plat','2n plat','postre','beguda','cafè i petit fours','acompanyaments') CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci DEFAULT NULL,
@@ -18,21 +10,7 @@ CREATE TABLE `productes` (
   PRIMARY KEY (`nom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `registres` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_taula` int(11) NOT NULL,
-  `data` date DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=' ';
-
-INSERT INTO `comandes` (`id`, `producte`, `quantitat`) VALUES
-	(1, 'aigua de jamaica', 2),
-	(1, 'crema catalana', 1),
-	(2, 'cafè amb llet', 1),
-	(2, 'gin tonic amb gerds i llimona', 3),
-	(2, 'picapoll negre', 5),
-	(2, 'tallat', 1),
-	(3, 'profiteroles farcits de crema', 1);
+DELETE FROM `productes`;
 
 INSERT INTO `productes` (`nom`, `preu`, `tipus`, `stock`, `imatge`) VALUES
 	('aigua de coco natural', 2.5, 'beguda', 100, './img/plats/aigua de coco natural.jpeg'),
@@ -96,10 +74,23 @@ INSERT INTO `productes` (`nom`, `preu`, `tipus`, `stock`, `imatge`) VALUES
 	('trufes de xocolata', 7, 'cafè i petit fours', 50, './img/plats/trufes de xocolata.jpeg'),
 	('xocolata calenta amb malvaviscos', 4, 'postre', 50, './img/plats/xocolata calenta amb malvaviscos.jpeg');
 
-INSERT INTO `registres` (`id`, `id_taula`, `data`) VALUES
-	(NULL, 1, '2023-11-28'),
-	(NULL, 1, '2023-11-28'),
-	(NULL, 14, '2023-11-30');
+CREATE TABLE IF NOT EXISTS `registres` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_taula` int(11) NOT NULL,
+  `data` date NOT NULL DEFAULT curdate(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=' ';
 
-ALTER TABLE `comandes` ADD CONSTRAINT `FK_comanda_productes` FOREIGN KEY (`producte`) REFERENCES `productes` (`nom`) ON UPDATE CASCADE;
-ALTER TABLE `comandes` ADD CONSTRAINT `FK_comandes_registres` FOREIGN KEY (`id`) REFERENCES `registres` (`id`) ON DELETE CASCADE;
+DELETE FROM `registres`;
+
+CREATE TABLE IF NOT EXISTS `comandes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `producte` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
+  `quantitat` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`producte`) USING BTREE,
+  KEY `FK_comanda_productes` (`producte`),
+  CONSTRAINT `FK_comanda_productes` FOREIGN KEY (`producte`) REFERENCES `productes` (`nom`) ON UPDATE CASCADE,
+  CONSTRAINT `FK_comandes_registres` FOREIGN KEY (`id`) REFERENCES `registres` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELETE FROM `comandes`;

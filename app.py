@@ -83,8 +83,7 @@ def generate_bg_image(image,width,height):
 
 def menu_plats(n_taula,tipus):
     llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
-    print(recollir_comanda(n_taula))
-    
+        
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
