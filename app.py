@@ -10,6 +10,7 @@ LIGHT_RED_BG_COLOR = '#FF5964'
 BLUE_BG_COLOR = '#35A7FF'
 RED_BG_COLOR = '#E3170A'
 GRN_BG_COLOR = '#20BF55'
+PINK_BG_COLOR = '#0A95FF'
 BTN_ACTIVE_BG_COLOR = '#70C1FF'
 BTN_DISABLED_GRN_COLOR = '#62E48D'
 BTN_DISABLED_RED_COLOR = '#F85A4F'
@@ -83,7 +84,7 @@ def generate_bg_image(image,width,height):
 
 def menu_plats(n_taula,tipus):
     llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
-    dict_comanda = {}
+    
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
@@ -106,7 +107,16 @@ def menu_plats(n_taula,tipus):
             cont+=1
     
     def guardar_comanda():
-        pass
+        dict_comanda = {}
+        
+        for i in range(len(llista_int_vars)):
+            if llista_int_vars[i].get() != 0:
+                dict_comanda[llista_productes[i]] = llista_int_vars[i].get()
+        if afegir_comanda(n_taula, dict_comanda):
+            msgbox.showinfo("Comanda guardada","S'ha guardat la comanda",parent=menu_aliments)
+        else:
+            msgbox.showerror("BD Error", "No s'ha pogut guardar la comanda.",parent=menu_aliments)
+        
     
     def restar(index):
         if llista_int_vars[(index)-(7*(page-1))].get() > 0: 
@@ -139,29 +149,29 @@ def menu_plats(n_taula,tipus):
             pass   
         # canviar de pagina amb limitadors
         if page == 1:
-            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE,bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=3, padx=20,pady=5)
+            Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE,bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5,padx=20,pady=5,sticky="nse")
         else:
-             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), bg=GRN_BG_COLOR,activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=3, padx=20,pady=5)
+             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), bg=GRN_BG_COLOR,activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5,padx=20,pady=5,sticky="nse")
 
         if len(llista_productes) <= page*7:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE, bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5, padx=20,pady=5)
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), state=DISABLED, relief=RIDGE, bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=6,padx=20,pady=5,sticky="nsw")
         else:
-            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), bg=GRN_BG_COLOR, activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5, padx=20,pady=5)
+            Button(menu_aliments, text=">",font=("Gabriola",10),width=4, command=lambda:canviar_pag_seg(page), bg=GRN_BG_COLOR, activebackground=BTN_DISABLED_GRN_COLOR).grid(row=8,column=6,padx=20,pady=5,sticky="nsw")
 
         # Botó enrere
-        Button(menu_aliments,text="Enrere",font=("Gabriola",10),width=7, bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=menu_aliments.destroy).grid(row=8,column=4)  
+        Button(menu_aliments,text="Enrere",font=("Gabriola",10),width=20,bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=menu_aliments.destroy).grid(row=8,column=3,columnspan=2,sticky="nsw")  
         # Botó guardar comanda
-        Button(menu_aliments,text="Guardar comanda",font=("Gabriola",10),width=30, bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=menu_aliments.destroy).grid(row=8,column=2)
+        Button(menu_aliments,text="Guardar comanda",font=("Gabriola",10),width=30, bg=GRN_BG_COLOR, activebackground="#FFC2C6",command=guardar_comanda).grid(row=8,column=1,columnspan=2,sticky="nse", padx=30)
         # Botó enrere menu
         if tipus!="entrant":
-            Button(menu_aliments,text="<-",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10).grid(row=0,column=0,rowspan=10)
+            Button(menu_aliments,text="👈",font=("Gabriola",20),bg=PINK_BG_COLOR,activebackground="#FEEBFB",command=enrere).grid(row=1,column=0,rowspan=7,sticky="nsw")
         else:
-            Button(menu_aliments,text="<-",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10, relief=RIDGE, state=DISABLED).grid(row=0,column=0,rowspan=10)
+            Button(menu_aliments,text="👈",font=("Gabriola",20),bg=PINK_BG_COLOR,activebackground="#FEEBFB",command=enrere,relief=RIDGE,state=DISABLED).grid(row=1,column=0,rowspan=7,sticky="nsw")
         # Botó següent menu
         if tipus != "cafè i petit fours":
-            Button(menu_aliments,text="->",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=endavant,height=10).grid(row=0,column=6,rowspan=10)
+            Button(menu_aliments,text="👉",font=("Gabriola",20),bg=PINK_BG_COLOR,activebackground="#FEEBFB",command=endavant).grid(row=1,column=6,rowspan=7,sticky="nse")
         else:
-            Button(menu_aliments,text="->",font=("Gabriola",10),bg=LIGHT_RED_BG_COLOR, activebackground="#FFC2C6",command=enrere, height=10, relief=RIDGE, state=DISABLED).grid(row=0,column=6,rowspan=10)
+            Button(menu_aliments,text="👉",font=("Gabriola",20),bg=PINK_BG_COLOR,activebackground="#FEEBFB",command=enrere,relief=RIDGE,state=DISABLED).grid(row=1,column=6,rowspan=7,sticky="nse")
 
         resize(None,menu_aliments)
         return page
@@ -192,7 +202,7 @@ def menu_plats(n_taula,tipus):
     menu_aliments.config(bg=CHAMPAGNE_BG_COLOR)
     menu_aliments.attributes("-fullscreen", True)
     menu_aliments.grid_rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
-    menu_aliments.grid_columnconfigure((0,1,2,3,4,5),weight=1)
+    menu_aliments.grid_columnconfigure((0,1,2,3,4,5,6),weight=1)
 
     for i in range (len(llista_product_completa)):
         llista_productes.append(llista_product_completa[i][0])
