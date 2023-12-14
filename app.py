@@ -203,6 +203,7 @@ def menu_plats(n_taula,tipus):
     menu_aliments.attributes("-fullscreen", True)
     menu_aliments.grid_rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
     menu_aliments.grid_columnconfigure((0,1,2,3,4,5,6),weight=1)
+    menu_aliments.iconbitmap("./img/icon.ico")
 
     for i in range (len(llista_product_completa)):
         llista_productes.append(llista_product_completa[i][0])
@@ -235,6 +236,7 @@ def menu_taula(n_taula):
     window.title("Menú taules")
     window.config(bg=CHAMPAGNE_BG_COLOR)
     window.attributes('-fullscreen',True)
+    window.iconbitmap("./img/icon.ico")
 
     window.grid_rowconfigure(0,weight=1)
     window.grid_rowconfigure(1,weight=10)
@@ -313,6 +315,7 @@ main = Tk()
 main.title("QwikOrder")
 main.attributes('-fullscreen',True)
 main.config(bg=CHAMPAGNE_BG_COLOR)
+main.iconbitmap("./img/icon.ico")
 
 # Fer responsive finestra principal
 main.grid_rowconfigure(0,weight=1)
