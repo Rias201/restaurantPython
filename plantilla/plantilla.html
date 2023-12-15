@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="plantilla.css">
+</head>
+
+<body>
+    <p class="text-center m-0 symbol">==================================================================</p>
+    <p id="title" class="text-center m-0">La Cuina dels Sentits</p>
+    <p class="text-center"><span>Check: {{n_check}}</span><span>Taula: {{n_taula}}</span></p>
+    <p class="text-center m-0 symbol">==================================================================</p>
+    <table id="articles" class="m-auto align-top">
+        <thead>
+            <th>#</th>
+            <th class="text-left">Nom de l'article</th>
+            <th>Preu</th>
+        </thead>
+        <tbody>
+            {% for producte in productes -%}
+            <tr>
+                <td class="text-right align-top">{{producte[0]}}</td>
+                <td class="text-left">{{producte[1]|capitalize}}</td>
+                <td class="text-right align-top"><nobr>{{producte[2]}} €</nobr></td>
+            </tr>
+            {%- endfor %}
+        </tbody>
+    </table>
+    <p class="text-center mb-0 symbol">-------------------------------------------------</p>
+    <table id="pagament" class="m-auto text-right">
+        <tr>
+            <th>Subtotal:</th>
+            <td>{{subtotal}} €</td>
+        </tr>
+        <tr>
+            <th>Impostos:</th>
+            <td>{{impostos}} €</td>
+        </tr>
+        <tr>
+            <th>Total:</th>
+            <td>{{total}} €</td>
+        </tr>
+    </table>
+    <br>
+    <p class="text-center m-0 symbol">******************************************************************</p>
+    <p class="text-center m-0 symbol">**********************************************</p>
+</body>
+
+</html>

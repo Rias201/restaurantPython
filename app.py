@@ -1,8 +1,9 @@
-import random
+import random, datetime, threading, os
 from tkinter import *
-from tkinter import messagebox as msgbox
+from tkinter import simpledialog, ttk, messagebox as msgbox
 from database import *
 from PIL import Image, ImageTk
+from sendPDF import get_pdf, send_pdf
 
 CHAMPAGNE_BG_COLOR = '#FFE4C4'
 DARK_BLUE_BG_COLOR = '#38618C'
@@ -21,22 +22,55 @@ def cancelar_comanda(n_taula, window):
         taules_ocupades[list(taules_ocupades)[n_taula-1]] = 0
         window.destroy()
     else:
-        msgbox.showerror("BD Error", "No s'ha pogut esborrar la comanda.")
+        msgbox.showerror("BD Error", "No s'ha pogut esborrar la comanda.",parent=window)
+
+def check_if_done(t):
+    print("Fent comprobació d'execució")
+    # Si ha acabat l'execució del fil, activem el botó
+    if not t.is_alive():
+        fact_btn.config(state=NORMAL)
+    else:
+        # En cas negatiu, tornem a comprobar
+        factura_thread_check(t)
 
 def clear_check():
     # Habilitem el textarea
-    check_txt.config(state="normal")
+    check_txt.config(state=NORMAL)
     # Borrem el textarea
     check_txt.delete(1.0,END)
     # I el tornem a fer READONLY
-    check_txt.config(state="disabled")
+    check_txt.config(state=DISABLED)
+    fact_btn.config(state=DISABLED)
 
 def crear_taula_aliments(n_taula,plat):
     menu_plats(n_taula,plat)
 
+def enviar_factura():
+    fact_btn.config(state=DISABLED)
+    # Preguntem a quin mail s'envia
+    email = simpledialog.askstring("Email", "A quin email s'envia la factura?")
+    # Generem un fil d'execució per a la creació del PDF i per l'enviament
+    t = threading.Thread(target=get_pdf(check_taula,check_num,check_comanda))
+    t.start()
+    factura_thread_check(t)
+
+    t = threading.Thread(target=send_pdf(email))
+    t.start()
+    factura_thread_check(t)
+
+    msgbox.showinfo("Factura enviada","La factura s'ha enviat correctament amb format PDF.")
+
+def factura_thread_check(t):
+    main.after(1000,check_if_done,t)
+
 def fer_check(n_taula, window):
+    global check_taula
+    global check_num
+    global check_comanda
+
     # Recollim la comanda
     productes = recollir_comanda(n_taula,'*')
+    llista_articles = list()
     if len(productes) != 0:
         # Fem el check
         subtotal = 0.0
@@ -48,8 +82,13 @@ def fer_check(n_taula, window):
         for producte in productes:
             check += f"{f'{producte[2]}':>5} "
             check += f"{f'{producte[1][:32].capitalize()}':<32} "
-            check += f"{f'{producte[3] * producte[2]}':>5} €\n"
+            check += f"{f'{producte[3] * producte[2]:.2f}':>5} €\n"
             subtotal += producte[3] * producte[2]
+            article = list()
+            article.append(producte[2])
+            article.append(producte[1])
+            article.append(producte[3])
+            llista_articles.append(tuple(article))
         check += f"\n{'----------------------':^50}"
         check += f"{'Subtotal':>25} "
         check += f"{f'{subtotal:.2f}':>7} €\n"
@@ -71,8 +110,14 @@ def fer_check(n_taula, window):
         list(taules_ocupades)[n_taula-1].config(bg=DARK_BLUE_BG_COLOR)
         taules_ocupades[list(taules_ocupades)[n_taula-1]] = 0
         window.destroy()
+
+        # Activem l'opció de fer el PDF
+        check_taula = n_taula
+        check_num = productes[0][0]
+        check_comanda = llista_articles
+        fact_btn.config(state=NORMAL)
     else:
-        msgbox.showinfo("Comanda no registrada", "No es pot fer check d'una comanda que no ha sigut registrada.")
+        msgbox.showinfo("Comanda no registrada", "No es pot fer check d'una comanda que no ha sigut registrada.",parent=window)
 
 def generate_bg_image(image,width,height):
     # Agafem una imatge aleatoria del nostre lllistat
@@ -82,9 +127,20 @@ def generate_bg_image(image,width,height):
     f = ImageTk.PhotoImage(foto)
     return f
 
+def historial_comandes():
+    # Fer ttk.combobox
+    # window = Toplevel()
+    # window.title("Prova 1")
+    # window.attributes("-fullscreen", True)
+    # Label(window, text="Hola, sóc una prova").pack()
+    historial = historic(datetime.date.today())
+    for registre in historial:
+        print(f"{registre[0]}. Taula n: {registre[1]}, Article: {registre[2].capitalize()}, Quantitat: {registre[3]}")
+    # window.mainloop()
+
 def menu_plats(n_taula,tipus):
     llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
-    
+
     def clear_window():
         for widget in menu_aliments.winfo_children():
             # print(widget.cget("class"))
@@ -112,10 +168,10 @@ def menu_plats(n_taula,tipus):
         for i in range(len(llista_int_vars)):
             if llista_int_vars[i].get() != 0:
                 dict_comanda[llista_productes[i]] = llista_int_vars[i].get()
-        if afegir_comanda(n_taula, dict_comanda):
-            msgbox.showinfo("Comanda guardada","S'ha guardat la comanda",parent=menu_aliments)
-        else:
+        if not afegir_comanda(n_taula, dict_comanda):
             msgbox.showerror("BD Error", "No s'ha pogut guardar la comanda.",parent=menu_aliments)
+        # else:
+            # msgbox.showinfo("Comanda guardada","S'ha guardat la comanda",parent=menu_aliments)
         
     
     def restar(index):
@@ -226,7 +282,7 @@ def menu_taula(n_taula):
             list(taules_ocupades)[n_taula-1].config(bg=LIGHT_RED_BG_COLOR)
             taules_ocupades[list(taules_ocupades)[n_taula-1]] = 1
         else:
-            msgbox.showerror("BD Error", "No s'ha pogut crear la comanda.")
+            msgbox.showerror("BD Error", "No s'ha pogut crear la comanda.",parent=window)
         
 
     # Creació de la finestra de menú
@@ -279,12 +335,12 @@ def resize(e=None,window=None):
         # print(e.widget.master.winfo_class())
         # get window width 
         lbl_font_size = e.width//40
-        btn_font_size = e.width//60
+        btn_font_size = e.width//65
         inp_font_size = e.width//45
         window = e.widget
     else:
         lbl_font_size = window.winfo_screenwidth()//40
-        btn_font_size = window.winfo_screenwidth()//60
+        btn_font_size = window.winfo_screenwidth()//65
         inp_font_size = window.winfo_screenwidth()//45
 
     # define text size on different condition
@@ -292,8 +348,10 @@ def resize(e=None,window=None):
         if widget.master.winfo_class() == 'Tk':
             if widget.winfo_class() == 'Label':
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(lbl_font_size)
-            elif widget.winfo_class() == 'Button':
-                widget['font'] = widget['font'].split(' ')[0] + ' ' + str(btn_font_size)
+            elif widget.winfo_class() == 'Frame':
+                for widget2 in widget.winfo_children():
+                    if widget2.winfo_class() == 'Button':
+                        widget2['font'] = widget2['font'].split(' ')[0] + ' ' + str(btn_font_size)
         elif widget.master.winfo_class() == 'Toplevel':
             if widget.winfo_class() == 'Label':
                 widget['font'] = widget['font'].split(' ')[0] + ' ' + str(lbl_font_size)
@@ -306,6 +364,9 @@ def resize(e=None,window=None):
 # Inicialització de variables
 imatges_taules = ["./img/taula_1.png","./img/taula_2.png","./img/taula_3.png"]
 taules_ocupades = dict()
+check_taula = 0
+check_num = 0
+check_comanda = []
 
 # Creació de la finestra principal
 main = Tk()
@@ -324,7 +385,6 @@ main.grid_columnconfigure(1,weight=1)
 title_lbl = Label(main,text="La Cuina dels Sentits",font=("Gabriola",25),bg=CHAMPAGNE_BG_COLOR)
 left_frame = Frame(main,bg=CHAMPAGNE_BG_COLOR)
 right_frame = Frame(main,bg=CHAMPAGNE_BG_COLOR)
-kill_btn = Button(main,text="Kill",font=('Monaco',20),bg="#ae2535",command=main.destroy)
 
 # Col·locació dels elements de la finestra principal
 title_lbl.grid(row=0,column=0,columnspan=2)
@@ -347,19 +407,23 @@ for i in range(0,25):
 
 # Fer responsive frame dret
 right_frame.grid_rowconfigure((0,1,2),weight=1)
-right_frame.grid_columnconfigure(0,weight=1)
+right_frame.grid_columnconfigure((0,1),weight=1)
 
 # Elements del frame dret
-check_txt = Text(right_frame,font=("Courier New",12),state="disabled",width=50,height=30)
+check_txt = Text(right_frame,font=("Courier New",12),state=DISABLED,width=50,height=30)
+fact_btn = Button(right_frame,text="PDF",font=("Impact",18),bg=BLUE_BG_COLOR,state=DISABLED,command=enviar_factura)
 clear_btn = Button(right_frame,text="C",font=("Impact",18),bg=BLUE_BG_COLOR,command=clear_check)
+hist_btn = Button(right_frame,text="HIST",font=("Impact",18),bg=BLUE_BG_COLOR,command=historial_comandes)
 quit_btn = Button(right_frame,text="X",font=("Impact",18),bg="red",command=main.destroy)
 
 # Col·locació dels elements del frame dret
 check_txt.grid(row=0,column=0,columnspan=2,sticky=NS)
-clear_btn.grid(row=1,column=0,sticky="nsew")
+fact_btn.grid(row=1,column=0,sticky="nsew")
+clear_btn.grid(row=1,column=1,sticky="nsew")
+hist_btn.grid(row=2,column=0,sticky="nsew")
 quit_btn.grid(row=2,column=1,sticky="nsew")
 
-# it will call resize function 
+# it will call resize function
 # when window size will change
 main.bind('<Configure>', resize)
 main.mainloop()

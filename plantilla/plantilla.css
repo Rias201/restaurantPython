@@ -1,0 +1,58 @@
+.align-top {
+    vertical-align: top;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.m-auto {
+    margin: auto;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.symbol {
+    font-size: 20px;
+}
+
+#title {
+    font-family: 'Gabriola', Brush Script MT, sans-serif;
+    font-size: 44px;
+    font-weight: bold;
+}
+
+span {
+    padding: 0em 4em;
+}
+
+table#articles th,
+table#articles td {
+    padding: 0em 1em;
+}
+
+table#articles thead th,
+table#pagament,
+span {
+    font-size: 18px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+table#articles tbody td {
+    font-size: 24px;
+    font-family: 'Courier New', Courier, monospace;
+}

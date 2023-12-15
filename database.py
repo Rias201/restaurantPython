@@ -86,10 +86,10 @@ def recollir_comanda(n_taula,tipus):
         cursor.execute("SELECT c.id, c.producte, c.quantitat, p.preu FROM comandes c, productes p WHERE c.id = (SELECT MAX(id) FROM registres WHERE id_taula = %s) AND p.nom = c.producte AND p.tipus = %s", (n_taula,tipus))
     else:
         cursor.execute("SELECT c.id, c.producte, c.quantitat, p.preu FROM comandes c, productes p WHERE c.id = (SELECT MAX(id) FROM registres WHERE id_taula = %s) AND p.nom = c.producte", (n_taula,))
-    json = cursor.fetchall()
+    llista = cursor.fetchall()
     cursor.close()
     disconnectdb(conn)
-    return json
+    return llista
 
 def recollir_productes(tipus):
     conn = connectdb()
@@ -100,4 +100,11 @@ def recollir_productes(tipus):
     disconnectdb(conn)
     return llista_productes
 
-# afegir_comanda(1,{'tallat':2,'freixenet':1,'crema catalana':3,'broquetes de vedella amb verdures a la graella':4})
+def historic(data):
+    conn = connectdb()
+    cursor = conn.cursor()
+    cursor.execute("SELECT r.id, r.id_taula, c.producte, c.quantitat FROM registres r LEFT JOIN comandes c ON r.id = c.id WHERE r.data = %s", (data,))
+    llista = cursor.fetchall()
+    cursor.close()
+    disconnectdb(conn)
+    return llista
