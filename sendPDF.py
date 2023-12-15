@@ -6,8 +6,8 @@ def get_pdf(n_taula, n_check, productes):
     if not os.path.exists('pdfs/'):
         os.mkdir('pdfs/')
     dir = os.path.join(os.path.dirname(__file__), 'pdfs/')
-    # print(dir)
 
+    img = os.path.abspath('img/logo.png')
     subtotal = 0
     impostos = 0
     total = 0
@@ -23,6 +23,7 @@ def get_pdf(n_taula, n_check, productes):
     impostos += subtotal*0.21
     total += subtotal + impostos
 
+    print(img)
     datos = {
         'n_taula': n_taula,
         'n_check': n_check,
@@ -30,6 +31,7 @@ def get_pdf(n_taula, n_check, productes):
         'subtotal': f"{round(subtotal,2):.2f}",
         'impostos': f"{round(impostos,2):.2f}",
         'total': f"{round(total,2):.2f}",
+        'image': img,
         }
 
     template_loader = jinja2.FileSystemLoader('plantilla/')

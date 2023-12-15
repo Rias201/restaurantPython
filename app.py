@@ -16,6 +16,9 @@ BTN_ACTIVE_BG_COLOR = '#70C1FF'
 BTN_DISABLED_GRN_COLOR = '#62E48D'
 BTN_DISABLED_RED_COLOR = '#F85A4F'
 
+def abs_path(relative_path):
+    return os.path.join(os.path.dirname(__file__), relative_path)
+
 def cancelar_comanda(n_taula, window):
     if delete_comanda(n_taula):
         list(taules_ocupades)[n_taula-1].config(bg=DARK_BLUE_BG_COLOR)
@@ -121,7 +124,7 @@ def fer_check(n_taula, window):
 
 def generate_bg_image(image,width,height):
     # Agafem una imatge aleatoria del nostre lllistat
-    foto = Image.open(image)
+    foto = Image.open(abs_path(image))
     # Marquem la mida de l'imatge
     foto = foto.resize((width,height))
     f = ImageTk.PhotoImage(foto)
@@ -259,6 +262,7 @@ def menu_plats(n_taula,tipus):
     menu_aliments.attributes("-fullscreen", True)
     menu_aliments.grid_rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
     menu_aliments.grid_columnconfigure((0,1,2,3,4,5,6),weight=1)
+    menu_aliments.iconbitmap(abs_path("./img/icon.ico"))
 
     for i in range (len(llista_product_completa)):
         llista_productes.append(llista_product_completa[i][0])
@@ -291,6 +295,7 @@ def menu_taula(n_taula):
     window.title("Menú taules")
     window.config(bg=CHAMPAGNE_BG_COLOR)
     window.attributes('-fullscreen',True)
+    window.iconbitmap(abs_path("./img/icon.ico"))
 
     window.grid_rowconfigure(0,weight=1)
     window.grid_rowconfigure(1,weight=10)
@@ -374,6 +379,7 @@ main = Tk()
 main.title("QwikOrder")
 main.attributes('-fullscreen',True)
 main.config(bg=CHAMPAGNE_BG_COLOR)
+main.iconbitmap(abs_path("./img/icon.ico"))
 
 # Fer responsive finestra principal
 main.grid_rowconfigure(0,weight=1)

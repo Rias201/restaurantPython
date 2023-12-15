@@ -8,11 +8,12 @@
 </head>
 
 <body>
+    
     <p class="text-center m-0 symbol">==================================================================</p>
-    <p id="title" class="text-center m-0">La Cuina dels Sentits</p>
+    <p id="title" class="text-center m-0"><img id="logo" src={{image}}>La Cuina dels Sentits</p>
     <p class="text-center"><span>Check: {{n_check}}</span><span>Taula: {{n_taula}}</span></p>
     <p class="text-center m-0 symbol">==================================================================</p>
-    <table id="articles" class="m-auto align-top">
+    <table id="articles" class="m-auto valign-top">
         <thead>
             <th>#</th>
             <th class="text-left">Nom de l'article</th>
@@ -21,9 +22,9 @@
         <tbody>
             {% for producte in productes -%}
             <tr>
-                <td class="text-right align-top">{{producte[0]}}</td>
+                <td class="text-right valign-top">{{producte[0]}}</td>
                 <td class="text-left">{{producte[1]|capitalize}}</td>
-                <td class="text-right align-top"><nobr>{{producte[2]}} €</nobr></td>
+                <td class="text-right valign-top"><nobr>{{producte[2]}} €</nobr></td>
             </tr>
             {%- endfor %}
         </tbody>
