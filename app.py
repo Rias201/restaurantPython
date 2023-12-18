@@ -8,6 +8,8 @@ from sendPDF import get_pdf, send_pdf
 CHAMPAGNE_BG_COLOR = '#FFE4C4'
 DARK_BLUE_BG_COLOR = '#38618C'
 LIGHT_RED_BG_COLOR = '#FF5964'
+DISABLED_GRAY_BG_COLOR = '#EAEAEA'
+DISABLED_GREY_FG_COLOR = '#636B61'
 BLUE_BG_COLOR = '#35A7FF'
 RED_BG_COLOR = '#E3170A'
 GRN_BG_COLOR = '#20BF55'
@@ -28,10 +30,10 @@ def cancelar_comanda(n_taula, window):
         msgbox.showerror("BD Error", "No s'ha pogut esborrar la comanda.",parent=window)
 
 def check_if_done(t):
-    print("Fent comprobació d'execució")
     # Si ha acabat l'execució del fil, activem el botó
     if not t.is_alive():
         fact_btn.config(state=NORMAL)
+        fact_btn.config(bg=BLUE_BG_COLOR)
     else:
         # En cas negatiu, tornem a comprobar
         factura_thread_check(t)
@@ -43,12 +45,14 @@ def clear_check():
     check_txt.delete(1.0,END)
     # I el tornem a fer READONLY
     check_txt.config(state=DISABLED)
+    fact_btn.config(bg=DISABLED_GRAY_BG_COLOR)
     fact_btn.config(state=DISABLED)
 
 def crear_taula_aliments(n_taula,plat):
     menu_plats(n_taula,plat)
 
 def enviar_factura():
+    fact_btn.config(bg=DISABLED_GRAY_BG_COLOR)
     fact_btn.config(state=DISABLED)
     # Preguntem a quin mail s'envia
     email = simpledialog.askstring("Email", "A quin email s'envia la factura?")
@@ -119,6 +123,7 @@ def fer_check(n_taula, window):
         check_num = productes[0][0]
         check_comanda = llista_articles
         fact_btn.config(state=NORMAL)
+        fact_btn.config(bg=BLUE_BG_COLOR)
     else:
         msgbox.showinfo("Comanda no registrada", "No es pot fer check d'una comanda que no ha sigut registrada.",parent=window)
 
@@ -132,14 +137,38 @@ def generate_bg_image(image,width,height):
 
 def historial_comandes():
     # Fer ttk.combobox
-    # window = Toplevel()
-    # window.title("Prova 1")
-    # window.attributes("-fullscreen", True)
-    # Label(window, text="Hola, sóc una prova").pack()
+    window = Toplevel()
+    window.title("Historic comandes")
+    window.configure(bg=CHAMPAGNE_BG_COLOR)
+    ww = window.winfo_screenwidth()
+    wh = window.winfo_screenheight()
+    width = int(ww//2)
+    height = int(wh//2)
+    x = int(width//2)
+    y = int(height//2)
+    c = 0
+    # print(ww, width, x)
+    # print(wh, height, y)
+    window.geometry("{}x{}+{}+{}".format(width,height,x,y))
+    window.resizable(0,0)
+    window.iconbitmap(abs_path("./img/icon.ico"))
+    window.overrideredirect(True)
     historial = historic(datetime.date.today())
-    for registre in historial:
-        print(f"{registre[0]}. Taula n: {registre[1]}, Article: {registre[2].capitalize()}, Quantitat: {registre[3]}")
-    # window.mainloop()
+    
+    for comanda in historial:
+        taula = historial[comanda][0]
+        articles = historial[comanda][1]
+        output = f"{comanda}. Taula {taula}:"
+        for article, quantitat in articles:
+            if article == None:
+                output += " No s'ha demanat res."
+            else:
+                output += f" {quantitat} {article.capitalize()},"
+        lbl = Label(window,text=output[:-1],bg=CHAMPAGNE_BG_COLOR,justify=LEFT,wraplength=width)
+        lbl.grid(row=c,column=0,columnspan=3)
+        c += 1;
+    Button(window,text="Enrere",bg=LIGHT_RED_BG_COLOR,command=window.destroy).grid(row=c,column=1)
+    window.mainloop()
 
 def menu_plats(n_taula,tipus):
     llista_plats = ["entrant","1r plat","2n plat","acompanyaments","beguda","postre","cafè i petit fours"]
@@ -173,10 +202,7 @@ def menu_plats(n_taula,tipus):
                 dict_comanda[llista_productes[i]] = llista_int_vars[i].get()
         if not afegir_comanda(n_taula, dict_comanda):
             msgbox.showerror("BD Error", "No s'ha pogut guardar la comanda.",parent=menu_aliments)
-        # else:
-            # msgbox.showinfo("Comanda guardada","S'ha guardat la comanda",parent=menu_aliments)
         
-    
     def restar(index):
         if llista_int_vars[(index)-(7*(page-1))].get() > 0: 
             num_actual = llista_int_vars[(index)-(7*(page-1))].get()
@@ -192,7 +218,7 @@ def menu_plats(n_taula,tipus):
         try:
             # Col·locació elements a la pàgina
             for i in range(7*page-7, 7*page):
-                # imatge
+                # Imatge
                 foto = generate_bg_image(llista_product_completa[i][3],75,75)
                 lbl = Label(menu_aliments,compound=LEFT, font=("Gabriola",20),image=foto,bg="#722F37")
                 lbl.image = foto
@@ -205,8 +231,8 @@ def menu_plats(n_taula,tipus):
                 # Entry d'stock
                 Entry(menu_aliments, font=("Kameron", 20), width=3, justify=CENTER, textvariable=llista_int_vars[i]).grid(row=(i+1)-(7*(page-1)), column=4)
         except IndexError:
-            pass   
-        # canviar de pagina amb limitadors
+            pass
+        # Canviar de pagina amb limitadors
         if page == 1:
             Button(menu_aliments, text="<",font=("Gabriola",10),width=4, command=lambda:canviar_pag_ant(page), state=DISABLED, relief=RIDGE,bg=BTN_DISABLED_GRN_COLOR).grid(row=8,column=5,padx=20,pady=5,sticky="nse")
         else:
@@ -234,14 +260,13 @@ def menu_plats(n_taula,tipus):
 
         resize(None,menu_aliments)
         return page
-    # funcions canviar pàgina
+    # Funcions canviar pàgina
     def canviar_pag_seg(pag):
         global page
         clear_window()
         
         page = crea_pag(pag+1)
         
-
     def canviar_pag_ant(pag):
         global page
         clear_window()
@@ -417,7 +442,7 @@ right_frame.grid_columnconfigure((0,1),weight=1)
 
 # Elements del frame dret
 check_txt = Text(right_frame,font=("Courier New",12),state=DISABLED,width=50,height=30)
-fact_btn = Button(right_frame,text="PDF",font=("Impact",18),bg=BLUE_BG_COLOR,state=DISABLED,command=enviar_factura)
+fact_btn = Button(right_frame,text="PDF",font=("Impact",18),bg=DISABLED_GRAY_BG_COLOR,disabledforeground=DISABLED_GREY_FG_COLOR,state=DISABLED,command=enviar_factura)
 clear_btn = Button(right_frame,text="C",font=("Impact",18),bg=BLUE_BG_COLOR,command=clear_check)
 hist_btn = Button(right_frame,text="HIST",font=("Impact",18),bg=BLUE_BG_COLOR,command=historial_comandes)
 quit_btn = Button(right_frame,text="X",font=("Impact",18),bg="red",command=main.destroy)

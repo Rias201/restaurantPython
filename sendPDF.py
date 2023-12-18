@@ -5,7 +5,8 @@ from email.message import EmailMessage
 def get_pdf(n_taula, n_check, productes):
     if not os.path.exists('pdfs/'):
         os.mkdir('pdfs/')
-    dir = os.path.join(os.path.dirname(__file__), 'pdfs/')
+    dir_output = os.path.abspath('pdfs/')
+    dir_plantilla = os.path.join(os.path.dirname(__file__), 'plantilla/')
 
     img = os.path.abspath('img/logo.png')
     subtotal = 0
@@ -23,7 +24,6 @@ def get_pdf(n_taula, n_check, productes):
     impostos += subtotal*0.21
     total += subtotal + impostos
 
-    print(img)
     datos = {
         'n_taula': n_taula,
         'n_check': n_check,
@@ -34,13 +34,13 @@ def get_pdf(n_taula, n_check, productes):
         'image': img,
         }
 
-    template_loader = jinja2.FileSystemLoader('plantilla/')
+    template_loader = jinja2.FileSystemLoader(dir_plantilla)
     template_env = jinja2.Environment(loader=template_loader)
     plantilla_html = template_env.get_template('plantilla.html')
     output_text = plantilla_html.render(datos)
 
     config = pdfkit.configuration(wkhtmltopdf="C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")
-    pdfkit.from_string(output_text, os.path.join(dir,'factura.pdf'), configuration=config,options={"enable-local-file-access": ""}, css='plantilla/plantilla.css')
+    pdfkit.from_string(output_text, os.path.join(dir_output,'factura.pdf'), configuration=config,options={"enable-local-file-access": ""}, css=os.path.join(dir_plantilla, 'plantilla.css'))
     
 def send_pdf(email_receptor):
     email_emisor = 'pdf.qwikorder@gmail.com'

@@ -1,4 +1,4 @@
-import mysql.connector
+import mysql.connector, datetime
 
 def connectdb():
     conn = mysql.connector.connect(
@@ -20,7 +20,7 @@ def create_comanda(n_taula):
         conn.commit()
         return True
     except Exception as e:
-        print(e)
+        # print(e)
         conn.rollback()
         return False
     finally:
@@ -56,7 +56,7 @@ def afegir_comanda(n_taula,dicc_productes):
         conn.commit()
         return True
     except Exception as e:
-        print(e)
+        # print(e)
         conn.rollback()
         return False
     finally:
@@ -72,7 +72,7 @@ def delete_comanda(n_taula):
         conn.commit()
         return True
     except Exception as e:
-        print(e)
+        # print(e)
         conn.rollback()
         return False
     finally:
@@ -104,7 +104,12 @@ def historic(data):
     conn = connectdb()
     cursor = conn.cursor()
     cursor.execute("SELECT r.id, r.id_taula, c.producte, c.quantitat FROM registres r LEFT JOIN comandes c ON r.id = c.id WHERE r.data = %s", (data,))
-    llista = cursor.fetchall()
+    dicc = dict()
+    for i in cursor.fetchall():
+        # print(i)
+        if i[0] not in dicc:
+            dicc[i[0]] = [i[1],[]]
+        dicc[i[0]][1].append([i[2], i[3]])
     cursor.close()
     disconnectdb(conn)
-    return llista
+    return dicc
