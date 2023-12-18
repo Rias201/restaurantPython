@@ -91,8 +91,8 @@ def fer_check(n_taula, window):
         # Fem una fila per a cada producte indicant quantitat, nom i preu total
         for producte in productes:
             check += f"{f'{producte[2]}':>5} "
-            check += f"{f'{producte[1][:32].capitalize()}':<32} "
-            check += f"{f'{producte[3] * producte[2]:.2f}':>5} €\n"
+            check += f"{f'{producte[1][:32].capitalize()}':<31} "
+            check += f"{f'{producte[3] * producte[2]:.2f}':>6} €\n"
             subtotal += producte[3] * producte[2]
             article = list()
             article.append(producte[2])
