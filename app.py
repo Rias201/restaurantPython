@@ -31,10 +31,7 @@ def cancelar_comanda(n_taula, window):
 
 def check_if_done(t):
     # Si ha acabat l'execució del fil, activem el botó
-    if not t.is_alive():
-        fact_btn.config(state=NORMAL)
-        fact_btn.config(bg=BLUE_BG_COLOR)
-    else:
+    if t.is_alive():
         # En cas negatiu, tornem a comprobar
         factura_thread_check(t)
 
@@ -52,20 +49,26 @@ def crear_taula_aliments(n_taula,plat):
     menu_plats(n_taula,plat)
 
 def enviar_factura():
-    fact_btn.config(bg=DISABLED_GRAY_BG_COLOR)
-    fact_btn.config(state=DISABLED)
-    # Preguntem a quin mail s'envia
-    email = simpledialog.askstring("Email", "A quin email s'envia la factura?")
-    # Generem un fil d'execució per a la creació del PDF i per l'enviament
-    t = threading.Thread(target=get_pdf(check_taula,check_num,check_comanda))
-    t.start()
-    factura_thread_check(t)
+    try:
+        fact_btn.config(bg=DISABLED_GRAY_BG_COLOR)
+        fact_btn.config(state=DISABLED)
+        # Preguntem a quin mail s'envia
+        email = simpledialog.askstring("Email", "A quin email s'envia la factura?")
+        # Generem un fil d'execució per a la creació del PDF i per l'enviament
+        t = threading.Thread(target=get_pdf(check_taula,check_num,check_comanda))
+        t.start()
+        factura_thread_check(t)
 
-    t = threading.Thread(target=send_pdf(email))
-    t.start()
-    factura_thread_check(t)
+        t = threading.Thread(target=send_pdf(email))
+        t.start()
+        factura_thread_check(t)
 
-    msgbox.showinfo("Factura enviada","La factura s'ha enviat correctament amb format PDF.")
+        msgbox.showinfo("Factura enviada","La factura s'ha enviat correctament amb format PDF.")
+    except Exception as e:
+        print(e)
+    finally:
+        fact_btn.config(state=NORMAL)
+        fact_btn.config(bg=BLUE_BG_COLOR)
 
 def factura_thread_check(t):
     main.after(1000,check_if_done,t)
